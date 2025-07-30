@@ -1,0 +1,389 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dr. W's Zoo of Functions</title>
+  <!-- Desmos API v1.11 CDN -->
+  <script src="https://www.desmos.com/api/v1.11/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+  <!-- MathJax CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #545454;
+      margin: 0;
+      padding: 20px;
+      color: #000;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .graph-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #d1d5db;
+      border: 2px solid #9ca3af;
+      border-radius: 10px;
+      box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+      padding: 10px;
+    }
+    .desmos-graph {
+      width: 300px;
+      height: 300px;
+      border: 1px solid #ccc;
+    }
+    .function-name {
+      font-size: 1.2em;
+      margin-top: 8px;
+      text-align: center;
+    }
+    .domain {
+      font-size: 1em;
+      margin-top: 4px;
+      text-align: center;
+    }
+    .description {
+      font-size: 1em;
+      margin-top: 4px;
+      text-align: center;
+      color: #000;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #fff;
+      background-color: #b91c1c;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+    }
+    .blurb {
+      text-align: center;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .footer {
+      text-align: center;
+      font-size: 1rem;
+      color: #fff;
+      background-color: #b91c1c;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+      margin-top: 20px;
+    }
+    .footer a {
+      color: #fff;
+      text-decoration: underline;
+    }
+    .loading {
+      text-align: center;
+      color: #ff0000;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="root" class="container">
+    <h1>Dr. W's Zoo of Functions</h1>
+    <div class="blurb">Functions, like animals, come in many shapes and sizes with different exotic features. Here are some of the most basic functions with the different kinds of exotic features we will study in our class.</div>
+    <div class="loading">Loading... If graphs or LaTeX don't appear, use a local server (python -m http.server 8000) and check the console (right-click, Inspect, Console).</div>
+    <div class="grid">
+      <div class="graph-container">
+        <div id="calculator-0" class="desmos-graph"></div>
+        <div id="katex-0" class="function-name">\(f(x) = 1\)</div>
+        <div id="domain-0" class="domain">\(\textbf{Domain: } (-\infty, \infty)\)</div>
+        <div class="description">The constant function, \(1\).</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-1" class="desmos-graph"></div>
+        <div id="katex-1" class="function-name">\(f(x) = x\)</div>
+        <div id="domain-1" class="domain">\(\textbf{Domain: } (-\infty, \infty)\)</div>
+        <div class="description">The linear function, \(x\).</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-2" class="desmos-graph"></div>
+        <div id="katex-2" class="function-name">\(f(x) = x^2\)</div>
+        <div id="domain-2" class="domain">\(\textbf{Domain: } (-\infty, \infty)\)</div>
+        <div class="description">The parabola, \(x^2\).</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-3" class="desmos-graph"></div>
+        <div id="katex-3" class="function-name">\(f(x) = x^3\)</div>
+        <div id="domain-3" class="domain">\(\textbf{Domain: } (-\infty, \infty)\)</div>
+        <div class="description">The cubic function, \(x^3\).</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-4" class="desmos-graph"></div>
+        <div id="katex-4" class="function-name">\(f(x) = \sqrt{x}\)</div>
+        <div id="domain-4" class="domain">\(\textbf{Domain: } [0, \infty)\)</div>
+        <div class="description">The square root function.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-5" class="desmos-graph"></div>
+        <div id="katex-5" class="function-name">\(f(x) = \sqrt[3]{x}\)</div>
+        <div id="domain-5" class="domain">\(\textbf{Domain: } (-\infty, \infty)\)</div>
+        <div class="description">The cube root function.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-6" class="desmos-graph"></div>
+        <div id="katex-6" class="function-name">\(f(x) = \sqrt[3]{x^2}\)</div>
+        <div id="domain-6" class="domain">\(\textbf{Domain: } (-\infty, \infty)\)</div>
+        <div class="description">The cube root squared.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-7" class="desmos-graph"></div>
+        <div id="katex-7" class="function-name">\(f(x) = \frac{x}{x}\)</div>
+        <div id="domain-7" class="domain">\(\textbf{Domain: } (-\infty, 0) \cup (0, \infty)\)</div>
+        <div class="description">The constant function, \(1\), with a hole when \(x=0\).</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-8" class="desmos-graph"></div>
+        <div id="katex-8" class="function-name">\(f(x) = \frac{x^2}{x}\)</div>
+        <div id="domain-8" class="domain">\(\textbf{Domain: } (-\infty, 0) \cup (0, \infty)\)</div>
+        <div class="description">The linear function, \(x\), with a hole at \(x=0\).</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-9" class="desmos-graph"></div>
+        <div id="katex-9" class="function-name">\(f(x) = \frac{x^3}{x}\)</div>
+        <div id="domain-9" class="domain">\(\textbf{Domain: } (-\infty, 0) \cup (0, \infty)\)</div>
+        <div class="description">The parabola, \(x^2\), with a hole at \(x=0\).</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-10" class="desmos-graph"></div>
+        <div id="katex-10" class="function-name">\(f(x) = \frac{1}{x}\)</div>
+        <div id="domain-10" class="domain">\(\textbf{Domain: } (-\infty, 0) \cup (0, \infty)\)</div>
+        <div class="description">The reciprocal function.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-11" class="desmos-graph"></div>
+        <div id="katex-11" class="function-name">\(f(x) = \frac{1}{x^2}\)</div>
+        <div id="domain-11" class="domain">\(\textbf{Domain: } (-\infty, 0) \cup (0, \infty)\)</div>
+        <div class="description">The reciprocal squared function.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-12" class="desmos-graph"></div>
+        <div id="katex-12" class="function-name">\(f(x) = |x|\)</div>
+        <div id="domain-12" class="domain">\(\textbf{Domain: } (-\infty, \infty)\)</div>
+        <div class="description">The absolute value function.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-13" class="desmos-graph"></div>
+        <div id="katex-13" class="function-name">\(f(x) = \frac{|x|}{x}\)</div>
+        <div id="domain-13" class="domain">\(\textbf{Domain: } (-\infty, 0) \cup (0, \infty)\)</div>
+        <div class="description">The sign function.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-14" class="desmos-graph"></div>
+        <div id="katex-14" class="function-name">\(f(x) = \sqrt{x^2}\)</div>
+        <div id="domain-14" class="domain">\(\textbf{Domain: } (-\infty, \infty)\)</div>
+        <div class="description">The algebraic form of the absolute value function.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-15" class="desmos-graph"></div>
+        <div id="katex-15" class="function-name">\(f(x) = (\sqrt{x})^2\)</div>
+        <div id="domain-15" class="domain">\(\textbf{Domain: } [0, \infty)\)</div>
+        <div class="description">The linear function, \(x\), with domain restricted to \([0,\infty)\).</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-16" class="desmos-graph"></div>
+        <div id="katex-16" class="function-name">\(f(x) = \sqrt{1 - x^2}\)</div>
+        <div id="domain-16" class="domain">\(\textbf{Domain: } [-1, 1]\)</div>
+        <div class="description">The semicircle.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-17" class="desmos-graph"></div>
+        <div id="katex-17" class="function-name">\(f(x) = \sin(x)\)</div>
+        <div id="domain-17" class="domain">\(\textbf{Domain: } (-\infty, \infty)\)</div>
+        <div class="description">The sine function.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-18" class="desmos-graph"></div>
+        <div id="katex-18" class="function-name">\(f(x) = \sqrt{x} \cdot \sqrt{-x}\)</div>
+        <div id="domain-18" class="domain">\(\textbf{Domain: } \{0\}\)</div>
+        <div class="description">The point.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-19" class="desmos-graph"></div>
+        <div id="katex-19" class="function-name">\(f(x) = \frac{\sqrt{x}}{\sqrt{-x}}\)</div>
+        <div id="domain-19" class="domain">\(\textbf{Domain: } \emptyset\)</div>
+        <div class="description">The empty function.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-20" class="desmos-graph"></div>
+        <div id="katex-20" class="function-name">\(f(x)=\sum_{n=0}^{\infty}\frac{1-\cos(2^{n} x)}{2^{n}}\)</div>
+        <div id="domain-20" class="domain">\(\textbf{Domain: } (-\infty, \infty)\)</div>
+        <div class="description">The Blancmange Function.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-21" class="desmos-graph"></div>
+        <div id="katex-21" class="function-name">\(f(x) = \sin\left(\frac{1}{x}\right)\)</div>
+        <div id="domain-21" class="domain">\(\textbf{Domain: } (-\infty, 0) \cup (0, \infty)\)</div>
+        <div class="description">The Topologists Sine Curve.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-22" class="desmos-graph"></div>
+        <div id="katex-22" class="function-name">\(f(x) = x\sin\left(\frac{1}{x}\right)\)</div>
+        <div id="domain-22" class="domain">\(\textbf{Domain: } (-\infty, 0) \cup (0, \infty)\)</div>
+        <div class="description">The Shrinking Topologists Sine Curve.</div>
+      </div>
+      <div class="graph-container">
+        <div id="calculator-23" class="desmos-graph"></div>
+        <div id="katex-23" class="function-name">\(f(x)=\sqrt{|x|}+\sin(\pi^{3}x)\sqrt{\frac{e^{2}-x^{2}}{2}}\)</div>
+        <div id="domain-23" class="domain">\(\textbf{Domain: } [-e, e]\)</div>
+        <div class="description">The Heartbeat Function.</div>
+      </div>
+    </div>
+    <div class="footer">
+      Dr. W on YouTube: <a href="https://www.youtube.com/@Dr.W.Mathematics">www.youtube.com/@Dr.W.Mathematics</a><br>
+      Join the Modern Math Academy: <a href="courses.modernmathacademy.com">courses.modernmathacademy.com</a>
+    </div>
+  </div>
+
+  <script>
+    console.log('Starting script execution...');
+
+    const functions = [
+      { expression: 'y = 1', latex: 'f(x) = 1', domain: '\\textbf{Domain: } (-\\infty, \\infty)', description: 'The constant function, \(1\).' },
+      { expression: 'y = x', latex: 'f(x) = x', domain: '\\textbf{Domain: } (-\\infty, \\infty)', description: 'The linear function, \(x\).' },
+      { expression: 'y = x^2', latex: 'f(x) = x^2', domain: '\\textbf{Domain: } (-\\infty, \\infty)', description: 'The parabola, \(x^2\).' },
+      { expression: 'y = x^3', latex: 'f(x) = x^3', domain: '\\textbf{Domain: } (-\infty, \infty)', description: 'The cubic function, \(x^3\).' },
+      { expression: 'y = \\sqrt{x}', point: { latex: '(0, 0)', pointStyle: 'POINT', color: 'blue' }, latex: 'f(x) = \\sqrt{x}', domain: '\\textbf{Domain: } [0, \\infty)', description: 'The square root function.' },
+      { expression: 'y = x^{1/3}', latex: 'f(x) = \\sqrt[3]{x}', domain: '\\textbf{Domain: } (-\\infty, \\infty)', description: 'The cube root function.' },
+      { expression: 'y = x^{2/3}', latex: 'f(x) = \\sqrt[3]{x^2}', domain: '\\textbf{Domain: } (-\\infty, \\infty)', description: 'The cube root squared.' },
+      { expression: 'y = \\frac{x}{x}', point: { latex: '(0, 1)', pointStyle: 'OPEN', color: 'blue' }, latex: 'f(x) = \\frac{x}{x}', domain: '\\textbf{Domain: } (-\\infty, 0) \\cup (0, \\infty)', description: 'The constant function, \(1\), with a hole when \(x=0\).' },
+      { expression: 'y = \\frac{x^2}{x}', point: { latex: '(0, 0)', pointStyle: 'OPEN', color: 'blue' }, latex: 'f(x) = \\frac{x^2}{x}', domain: '\\textbf{Domain: } (-\\infty, 0) \\cup (0, \\infty)', description: 'The linear function, \(x\), with a hole at \(x=0\).' },
+      { expression: 'y = \\frac{x^3}{x}', point: { latex: '(0, 0)', pointStyle: 'OPEN', color: 'blue' }, latex: 'f(x) = \\frac{x^3}{x}', domain: '\\textbf{Domain: } (-\\infty, 0) \\cup (0, \\infty)', description: 'The parabola, \(x^2\), with a hole at \(x=0\).' },
+      { expression: 'y = \\frac{1}{x}', latex: 'f(x) = \\frac{1}{x}', domain: '\\textbf{Domain: } (-\\infty, 0) \\cup (0, \\infty)', description: 'The reciprocal function.' },
+      { expression: 'y = \\frac{1}{x^2}', latex: 'f(x) = \\frac{1}{x^2}', domain: '\\textbf{Domain: } (-\\infty, 0) \\cup (0, \\infty)', description: 'The reciprocal squared function.' },
+      { expression: 'y = \\sqrt{x^2}', latex: 'f(x) = |x|', domain: '\\textbf{Domain: } (-\\infty, \\infty)', description: 'The absolute value function.' },
+      { 
+        expressions: [
+          { id: 'graph-positive', latex: 'y = 1 \\{x > 0\\}', color: 'blue' },
+          { id: 'graph-negative', latex: 'y = -1 \\{x < 0\\}', color: 'blue' }
+        ],
+        points: [
+          { id: 'point-13-0', latex: '(0, -1)', pointStyle: 'OPEN', color: 'blue' },
+          { id: 'point-13-1', latex: '(0, 1)', pointStyle: 'OPEN', color: 'blue' }
+        ],
+        latex: 'f(x) = \\frac{|x|}{x}', 
+        domain: '\\textbf{Domain: } (-\\infty, 0) \\cup (0, \\infty)', 
+        description: 'The sign function.' 
+      },
+      { expression: 'y = \\sqrt{x^2}', latex: 'f(x) = \\sqrt{x^2}', domain: '\\textbf{Domain: } (-\\infty, \\infty)', description: 'The algebraic form of the absolute value function.' },
+      { expression: 'y = (\\sqrt{x})^2', point: { latex: '(0, 0)', pointStyle: 'POINT', color: 'blue' }, latex: 'f(x) = (\\sqrt{x})^2', domain: '\\textbf{Domain: } [0, \\infty)', description: 'The linear function, \(x\), with domain restricted to \([0,\infty)\).' },
+      { expression: 'y = \\sqrt{1 - x^2}', points: [
+        { latex: '(-1, 0)', pointStyle: 'POINT', color: 'blue' },
+        { latex: '(1, 0)', pointStyle: 'POINT', color: 'blue' }
+      ], latex: 'f(x) = \\sqrt{1 - x^2}', domain: '\\textbf{Domain: } [-1, 1]', description: 'The semicircle.' },
+      { expression: 'y = \\sin(x)', latex: 'f(x) = \\sin(x)', domain: '\\textbf{Domain: } (-\infty, \infty)', description: 'The sine function.' },
+      { expression: 'y = \\sqrt{x} \\cdot \\sqrt{-x}', point: { latex: '(0, 0)', pointStyle: 'POINT', color: 'blue' }, latex: 'f(x) = \\sqrt{x} \\cdot \\sqrt{-x}', domain: '\\textbf{Domain: } \\{0\\}', description: 'The point.' },
+      { expression: 'y = \\frac{\\sqrt{x}}{\\sqrt{-x}}', latex: 'f(x) = \\frac{\\sqrt{x}}{\\sqrt{-x}}', domain: '\\textbf{Domain: } \\emptyset', description: 'The empty function.' },
+      { expression: 'y = \\sum_{n=0}^{100}\\frac{1-\\cos(2^{n} x)}{2^{n}}', latex: 'f(x)=\\sum_{n=0}^{\\infty}\\frac{1-\\cos(2^{n} x)}{2^{n}}', domain: '\\textbf{Domain: } (-\infty, \infty)', description: 'The Blancmange Function.' },
+      { expression: 'y = \\sin(1/x)', latex: 'f(x) = \\sin\\left(\\frac{1}{x}\\right)', domain: '\\textbf{Domain: } (-\infty, 0) \\cup (0, \\infty)', description: 'The Topologists Sine Curve.' },
+      { expression: 'y = x\\sin(1/x)', latex: 'f(x) = x\\sin\\left(\\frac{1}{x}\\right)', domain: '\\textbf{Domain: } (-\infty, 0) \\cup (0, \\infty)', description: 'The Shrinking Topologists Sine Curve.' },
+      { expression: 'y = \\sqrt{\\sqrt{x^2}} + \\sin(\\pi^3 x) \\sqrt{(e^2 - x^2)/2}', latex: 'f(x)=\\sqrt{|x|}+\\sin(\\pi^{3}x)\\sqrt{\\frac{e^{2}-x^{2}}{2}}', domain: '\\textbf{Domain: } [-e, e]', description: 'The Heartbeat Function.', points: [
+        { latex: '(-e, \\sqrt{e})', pointStyle: 'POINT', color: 'blue' },
+        { latex: '(e, \\sqrt{e})', pointStyle: 'POINT', color: 'blue' }
+      ] },
+    ];
+
+    try {
+      // Initialize Desmos graphs
+      functions.forEach((func, index) => {
+        console.log(`Initializing Desmos for calculator-${index}`);
+        const elt = document.getElementById(`calculator-${index}`);
+        if (!elt) {
+          console.error(`Element calculator-${index} not found`);
+          return;
+ Masses;
+        }
+        const calculator = Desmos.GraphingCalculator(elt, {
+          expressions: false,
+          settingsMenu: false,
+          zoomButtons: false,
+          showGrid: true,
+          showXAxis: true,
+          showYAxis: true,
+        });
+        if (func.expressions) {
+          func.expressions.forEach(expr => {
+            calculator.setExpression({ id: expr.id, latex: expr.latex, color: expr.color });
+          });
+        } else {
+          calculator.setExpression({ id: `graph-${index}`, latex: func.expression });
+        }
+        if (func.point) {
+          calculator.setExpression({ id: `point-${index}`, latex: func.point.latex, pointStyle: func.point.pointStyle, color: func.point.color });
+        }
+        if (func.points) {
+          func.points.forEach((point, pointIndex) => {
+            calculator.setExpression({ id: `point-${index}-${pointIndex}`, latex: point.latex, pointStyle: point.pointStyle, color: point.color });
+          });
+        }
+        calculator.setMathBounds({
+          left: -5,
+          right: 5,
+          bottom: -5,
+          top: 5,
+        });
+      });
+
+      // Remove loading message
+      const loading = document.querySelector('.loading');
+      if (loading) loading.style.display = 'none';
+    } catch (error) {
+      console.error('Error rendering page:', error);
+    }
+  </script>
+</body>
+</html>
